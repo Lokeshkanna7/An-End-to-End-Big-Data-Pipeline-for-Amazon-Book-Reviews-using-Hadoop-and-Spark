@@ -1,0 +1,70 @@
+version: "2"
+services:
+  namenode:
+    image: ubcse587/hadoop-namenode:3.4.1-1
+    hostname: namenode
+    env_file: [./config]
+    command: ["/opt/hadoop/namenode.sh"]
+    ports:
+      - "9870:9870"    # HDFS Web UI
+      - "9000:9000"    # HDFS NameNode RPC
+    volumes:
+      - namenode:/hadoop/dfs/name
+    networks:
+      - hadoopnet
+
+  datanode1:
+    image: ubcse587/hadoop-datanode:3.4.1-1
+    env_file: [./config]
+    command: ["hdfs", "datanode"]
+    volumes:
+      - datanode1:/hadoop/dfs/data
+    networks:
+      - hadoopnet
+
+  resourcemanager:
+    image: ubcse587/hadoop:3.4.1-1
+    hostname: resourcemanager
+    env_file: [./config]
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - "8088:8088"
+    networks:
+      - hadoopnet
+
+  nodemanager1:
+    image: ubcse587/hadoop:3.4.1-1
+    hostname: nodemanager1
+    env_file: [./config]
+    command: ["yarn", "nodemanager"]
+    ports:
+      - "8042:8042"
+    networks:
+      - hadoopnet
+
+  spark-client:
+    image: jupyter/pyspark-notebook
+    container_name: spark-client
+    depends_on:
+      - namenode
+      - resourcemanager
+    ports:
+      - "8888:8888"   # Jupyter Notebook
+    volumes:
+      - ./:/home/jovyan/work
+      - ./hadoop-conf:/home/jovyan/hadoop-conf   # Mount Hadoop config
+    environment:
+      - SPARK_OPTS=--conf spark.hadoop.fs.defaultFS=hdfs://localhost:9000
+      - HADOOP_CONF_DIR=/home/jovyan/hadoop-conf
+    working_dir: /home/jovyan/work
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+    networks:
+      - hadoopnet
+
+volumes:
+  namenode:
+  datanode1:
+
+networks:
+  hadoopnet:
+    driver: bridge
