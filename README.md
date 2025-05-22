@@ -29,17 +29,6 @@ We built this pipeline as part of CSE587 - Data Intensive Computing at the Unive
 
 We used the [Amazon Books Reviews dataset](https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews) from Kaggle.
 
-## 📁 Folder Structure
-
-| Folder | Description |
-|--------|-------------|
-| `report/` | Final project PDF report |
-| `data/` | Sample CSVs from the dataset |
-| `notebooks/` | Jupyter Notebooks for EDA and modeling |
-| `hadoop/` | Scripts and YAML for Hadoop setup via Docker |
-| `scripts/` | Python scripts for ML tasks |
-| `requirements.txt` | Python package dependencies |
-
 ## 🧠 Key Learnings
 
 - Deploying a local Hadoop cluster using Docker
@@ -51,7 +40,6 @@ We used the [Amazon Books Reviews dataset](https://www.kaggle.com/datasets/moham
 ## 👥 Authors
 
 - **Lokesh Kanna Rajaram** ([@lrajaram@buffalo.edu](mailto:lrajaram@buffalo.edu))
-- **Neha Mahesh** ([@nehamahe@buffalo.edu](mailto:nehamahe@buffalo.edu))
 
 ## 📜 License
 
