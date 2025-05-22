@@ -1,121 +1,64 @@
-# 0. Install
-Make sure you have docker installed on your own computer.
-[](https://docs.docker.com/get-started/get-docker/ )
-# 1. How to start the Hadoop Cluster
+ # 📚 SparkShelf: An End-to-End Big Data Pipeline for Amazon Book Reviews
 
-```bash
-docker compose -f docker-compose.yaml up -d
-```
+This project implements an end-to-end big data pipeline for analyzing Amazon book reviews using Hadoop and Apache Spark. It combines scalable storage, distributed processing, and machine learning techniques to extract insights such as sentiment trends, rating predictions, and fake review detection.
 
-After that, you will get some output like this:
-```
-[+] Running 5/5
- ✔ Network project_default              Created                                                                                                                                                           0.1s 
- ✔ Container project-resourcemanager-1  Started                                                                                                                                                           0.6s 
- ✔ Container project-namenode-1         Started                                                                                                                                                           0.5s 
- ✔ Container project-datanode1-1        Started                                                                                                                                                           0.6s 
- ✔ Container project-nodemanager1-1     Started 
-```
+## 🚀 Project Overview
 
-# 2. Upload file to HDFS
+We built this pipeline as part of CSE587 - Data Intensive Computing at the University at Buffalo. The project spans two major phases:
 
-Now you can get into your hadoop namenode container by such command:
+- **Phase 1:** Data cleaning, Hadoop cluster setup via Docker, HDFS integration
+- **Phase 2:** PySpark-based EDA and ML model development for classification, regression, and fake review detection
 
-```bash
-docker exec -it project-namenode-1 bash
-```
+## 📊 Objectives
 
-Now you are in the `/opt/hadoop` path, which contains all the hadoop things.
-And execute `cat README.txt`, you can get some text content:
+1. **Sentiment Analysis** – Classify reviews as positive or negative
+2. **Rating Prediction** – Predict review ratings based on text
+3. **Fake Review Detection** – Detect fraudulent or low-helpfulness reviews
+4. **Trend Analysis** – Explore temporal patterns in review behavior
+5. **Verified vs. Unverified Review Analysis**
 
-```
-For the latest information about Hadoop, please visit our website at:
+## 🛠️ Technologies Used
 
-   http://hadoop.apache.org/
+- **Hadoop** for distributed storage (HDFS)
+- **Apache Spark (PySpark)** for distributed computation
+- **Docker & Docker Compose** for cluster deployment
+- **Seaborn / Matplotlib / Pandas** for data visualization
+- **ML Models**: Logistic Regression, Linear Regression, Random Forest
 
-and our wiki, at:
+## 🗃️ Dataset
 
-   https://cwiki.apache.org/confluence/display/HADOOP/
-```
+We used the [Amazon Books Reviews dataset](https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews) from Kaggle.
 
-Now, let's upload this file to hdfs
+## 📁 Folder Structure
 
-```bash
-hdfs dfs -mkdir /input
-hdfs dfs -put README.txt /input/wc.txt
-```
+| Folder | Description |
+|--------|-------------|
+| `report/` | Final project PDF report |
+| `data/` | Sample CSVs from the dataset |
+| `notebooks/` | Jupyter Notebooks for EDA and modeling |
+| `hadoop/` | Scripts and YAML for Hadoop setup via Docker |
+| `scripts/` | Python scripts for ML tasks |
+| `requirements.txt` | Python package dependencies |
 
-You can check the file on the hdfs by 
+## 🧠 Key Learnings
 
-```bash
-hdfs dfs -cat /input/wc.txt
-```
+- Deploying a local Hadoop cluster using Docker
+- Ingesting and managing data in HDFS
+- Scaling ML models with PySpark MLlib
+- Data preprocessing, tokenization, and feature extraction
+- Evaluation metrics: Accuracy, RMSE, MAE, R²
 
-You can also open your web browser and go to `http://localhost:9870/explorer.html#/`, which is a built-in file explorer
+## 👥 Authors
 
-# 3. Data Ingestion Script
-Please refer to the `dataingestion`, it is a Java application.
-You can use any IDE you want, like `VSCode` or `IntelliJ IDEA`. 
-There is a very simple example for you to write/read data from HDFS.
+- **Lokesh Kanna Rajaram** ([@lrajaram@buffalo.edu](mailto:lrajaram@buffalo.edu))
+- **Neha Mahesh** ([@nehamahe@buffalo.edu](mailto:nehamahe@buffalo.edu))
 
-If you want to execute the script on your local machine, please add these hosts to your `/etc/hosts`
-```
-127.0.0.1 namenode
-127.0.0.1 datanode1
-127.0.0.1 resourcemanager
-127.0.0.1 nodemanager
-```
+## 📜 License
 
-If you want to build an executable file, please run this command:
-```shell
-./gradlew clean shadowJar
-```
+This project is for academic purposes as part of CSE587 at University at Buffalo.
 
-If you want to run this executable file on the namenode, please run this command:
-```shell
-docker cp ./app/build/libs/app-all.jar  <your namenode container name>:/opt/hadoop/app-all.jar
+---
 
-docker exec -it <your namenode container name> bash
-
-# on the namenode
-java -jar app-all.jar
-```
-
-
-# 4. Spark Example
-
-Create a python file by using `vi spark.py`. If you don't know what `vi` is, please refer to this [online course](https://missing.csail.mit.edu/2020/editors/)
-
-
-```python
-from pyspark import SparkConf, SparkContext
-def main():
-
-    conf = SparkConf().setAppName("WordCountDemo")
-    sc = SparkContext(conf=conf)
-    
-    input_path = "hdfs://namenode/input/wc.txt"
-    output_path = "hdfs://namenode/output/wordcount_result"
-
-    text_file = sc.textFile(input_path)
-    
-    counts = (text_file
-              .flatMap(lambda line: line.split())
-              .map(lambda word: (word, 1))
-              .reduceByKey(lambda a, b: a + b))
-    
-    counts.saveAsTextFile(output_path)
-    
-    sc.stop()
-
-if __name__ == "__main__":
-    main()
-
-```
-
-And you can run this by `./spark/bin/spark-submit  --master yarn   --deploy-mode cluster spark.py`
-
-If you success, you can check the result in `/output/wordcount_result`
 
 
 
